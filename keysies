@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# easy keysies -- load all the ssh private keys into yr agent
+
+from __future__ import print_function
+import os
+
+HOME = os.path.expanduser('~') + "/"
+SSH_CONFIG_DIR = HOME + ".ssh/"
+EXCL_FILES = ['config', 'authorized_keys', 'known_hosts']
+EXCL_SUFFIX = ('.pub')
+
+KEYFILES = [SSH_CONFIG_DIR + y for y in
+            [x for x in os.listdir(SSH_CONFIG_DIR) if x not in EXCL_FILES]
+            if not os.path.basename(y).endswith(EXCL_SUFFIX)]
+
+print(KEYFILES)
+
+# TODO: skip already added
+
+for kf in KEYFILES:
+    os.system("ssh-add {0}".format(kf))
