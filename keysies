@@ -4,6 +4,8 @@
 from __future__ import print_function
 import os
 
+LIFETIME = 21600
+
 HOME = os.path.expanduser('~') + "/"
 SSH_CONFIG_DIR = HOME + ".ssh/"
 EXCL_FILES = ['config', 'authorized_keys', 'known_hosts']
@@ -18,4 +20,4 @@ print(KEYFILES)
 # TODO: skip already added
 
 for kf in KEYFILES:
-    os.system("ssh-add {0}".format(kf))
+    os.system("ssh-add -t {1} {0}".format(kf, LIFETIME))
