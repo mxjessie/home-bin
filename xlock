@@ -1,0 +1,3 @@
+#!/bin/bash
+# todo: locker detection
+xscreensaver-command -lock

@@ -1,0 +1,27 @@
+#!/bin/bash
+# mknoise: let's MUSIC
+
+# f*ck all this noise in particular
+fuckmods="cpufreq_powersave cpufreq_userspace cpufreq_conservative ath9k ath3k snd_hda_intel snd_hda_codec_hdmi snd_hda_codec_realtek"
+
+if [[ $1 == "start" ]]; then
+    echo "hope you plugged in yr ethernet :3c"
+    pulseaudio -k # i hate you
+    jack_control start
+    nmcli d disconnect wlan0 
+    sudo cpufreq-set -g performance -c 0 # VT JU KIC I Y
+    sudo cpufreq-set -g performance -c 1 # EC ST KED N O
+    sudo rmmod $fuckmods
+elif [[ $1 == "stop" ]]; then
+    echo "ok whatever be boring see if i care"
+    jack_control stop
+    for mod in $fuckmods; do
+        sudo modprobe $mod
+    done
+    sudo cpufreq-set -g powersave -c 0 # zzz
+    sudo cpufreq-set -g powersave -c 1 # zzz
+    nmcli device connect wlan0
+else
+    echo "usage: mknoise [start|stop]"
+    echo "prep yr system for low latency audio stuff. kills wifi!"
+fi
