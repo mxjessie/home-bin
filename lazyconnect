@@ -1,0 +1,13 @@
+#!/bin/zsh
+# lazy jam mode: connect instrs & pairs to mains and cans
+
+for i in 1 2 3 5 7; do
+    jack_connect system:capture_$i system:playback_1; 
+    jack_connect system:capture_$i system:playback_7;
+done
+for i in 1 2 4 6 8; do
+    jack_connect system:capture_$i system:playback_2; 
+    jack_connect system:capture_$i system:playback_8; 
+done
+# danke schon
+
