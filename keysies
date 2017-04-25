@@ -5,7 +5,7 @@ from __future__ import print_function
 import os
 import platform
 
-LIFETIME = 21600
+LIFETIME = 43200
 
 HOME = os.path.expanduser('~') + "/"
 HOSTNAME = platform.node().split('.')[0]
