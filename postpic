@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# todo: test if these things are installed
+# todo: test for proper args
+
+SRCFILE="$1"
+DSTNAME="$2"
+
+SAVEPATH="$HOME/Pictures/Postables"
+NEWNAME="$SAVEPATH/$DSTNAME"
+
+mkdir -p $SAVEPATH
+
+# @2250000 = maximum of 2.2 megapixels / 1500^2
+convert -resize 2250000@ "$SRCFILE" "$NEWNAME"
+
+exiftool -all=  -overwrite_original_in_place "$NEWNAME"
+
+file "$NEWNAME"
