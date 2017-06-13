@@ -1,0 +1,10 @@
+#!/bin/sh
+# given a sqlite database of 2FA secrets from Google Authenticator,
+# create a whole mess of qr code .pngs in cwd, e.g. for migration or backup
+# requires qrencode
+#
+# adb root
+# adb pull /data/data/com.google.android.apps.authenticator2/databases/databases databases # databases
+# adb unroot
+
+IFS=$(echo -en "\n\b");for i in `sqlite3 $1 'select email,secret from accounts;'`; do IFS='#'; read E S <<< $(echo $i | awk -F\| '{ printf "%s#otpauth://totp/%s?secret=%s",$1,$1,$2 }'); echo $S | qrencode -o "$E".png -d300 -s10; done
