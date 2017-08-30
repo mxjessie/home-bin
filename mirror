@@ -1,12 +1,16 @@
 #!/bin/bash
 # mirror - say cheese
 
+# TODO: xrandr ??
+CAM_WIDTH='640'
+CAM_HEIGHT='480'
+
 mirror_mplayer() {
-    mplayer -ao none -vf mirror -vf screenshot -vo gl -tv driver=v4l2:width=1366:height=768 -fs tv://
+    mplayer -ao none -vf mirror -vf screenshot -vo gl -tv driver=v4l2:width=$CAM_WIDTH:height=$CAM_HEIGHT -fs tv://
 }
 
 mirror_mpv() {
-    mpv --no-audio -vf mirror -vo opengl --tv-width 1366 --tv-height 768 -fs tv://
+    mpv --no-audio -vf mirror -vo opengl --tv-width $CAM_WIDTH --tv-height $CAM_HEIGHT -fs tv://
 }
 
 mirror_osx() {
@@ -15,7 +19,7 @@ mirror_osx() {
 }
 
 cmd_exists() {
-    if `command -v $1 2>&1 /dev/null`; then
+    if which "$1" > /dev/null 2>&1 ; then
         return 0
     else
         return 1

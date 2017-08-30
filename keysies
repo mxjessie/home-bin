@@ -5,24 +5,26 @@ from __future__ import print_function
 import os
 import platform
 
-LIFETIME = 43200
+LIFETIME = None
 
 HOME = os.path.expanduser('~') + "/"
 HOSTNAME = platform.node().split('.')[0]
 SSH_CONFIG_DIR = HOME + ".ssh/"
 EXCL_FILES = [
     'config', 'authorized_keys', 'known_hosts',
-    'environment-{0}'.format(HOSTNAME),
     ]
+EXCL_PREFIX = ('environment-')
 EXCL_SUFFIX = ('.pub')
 
 KEYFILES = [SSH_CONFIG_DIR + y for y in
             [x for x in os.listdir(SSH_CONFIG_DIR) if x not in EXCL_FILES]
-            if not os.path.basename(y).endswith(EXCL_SUFFIX)]
+            if not os.path.basename(y).endswith(EXCL_SUFFIX)
+            and not os.path.basename(y).startswith(EXCL_PREFIX)]
 
 print("Loading: {0}".format(', '.join(KEYFILES)))
 
 # TODO: skip already added
 
 for kf in KEYFILES:
-    os.system("ssh-add -t {1} {0}".format(kf, LIFETIME))
+    LTCMD = "-t {0}".format(LIFETIME) if LIFETIME else ""
+    os.system("ssh-add {1} {0}".format(kf, LTCMD))
