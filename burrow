@@ -1,0 +1,12 @@
+#!/bin/bash
+# burrow.sh: fire up a reverse ssh tunnel and prevent sleeping
+
+RPORT=$((26000 + RANDOM / 64))
+JUMPHOST=$1
+
+echo -e "hmu @ ${RPORT}\nctrl+c to get yr pwrmgmt back"
+systemd-inhibit \
+    --what=handle-lid-switch:sleep:idle:shutdown \
+    --why='tunnel snakes rule' \
+    ssh -NT -o TCPKeepAlive=yes -o ServerAliveInterval=10 \
+    -R "${RPORT}":localhost:22 "${JUMPHOST}"
