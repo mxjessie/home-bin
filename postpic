@@ -1,4 +1,5 @@
 #!/bin/sh
+# sanitize a photo for uploading to the online
 
 # todo: test if these things are installed
 # todo: test for proper args
@@ -9,7 +10,7 @@ DSTNAME="$2"
 SAVEPATH="$HOME/Pictures/Postables"
 NEWNAME="$SAVEPATH/$DSTNAME"
 
-mkdir -p $SAVEPATH
+mkdir -p "$SAVEPATH"
 
 # @2250000 = maximum of 2.2 megapixels / 1500^2
 convert -resize 2250000@ "$SRCFILE" "$NEWNAME"
