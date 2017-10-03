@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+# given a tweets.csv from yr archive, emit a stream of random rainbow tweets
+# TODO: replace color randints w/ random.choice on an array w/o invisible colors
+# TODO: what if: more randomization? fg/bg colors, sleep delay
+# TODO: type out characters instead of flushing lines at a time
+# TODO: some kind of color adjacency to maintain some semblance of contrast
+
+from colored import fg, bg, attr
+from csv import DictReader
+from random import randint
+from sys import argv, stdout
+from time import sleep
+
+with open(argv[1], 'r') as csvfile:
+    TWEETS = [x['text'] for x in DictReader(csvfile)]
+
+while True:
+    color = bg(randint(0,255)) + fg(randint(0,255))
+    print(color + TWEETS[randint(0,len(TWEETS))] + attr('reset'), end="")
+    stdout.flush()
+    sleep(0.1)
