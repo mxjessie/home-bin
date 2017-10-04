@@ -1,21 +1,27 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # given a tweets.csv from yr archive, emit a stream of random rainbow tweets
+# requires 'colored' (pip install colored)
 # TODO: replace color randints w/ random.choice on an array w/o invisible colors
-# TODO: what if: more randomization? fg/bg colors, sleep delay
 # TODO: type out characters instead of flushing lines at a time
 # TODO: some kind of color adjacency to maintain some semblance of contrast
+# TODO: it's slow. itertools?
+# TODO: optparse? make it like fortune or maybe even a tmux/screen locker
 
-from colored import fg, bg, attr
+from __future__ import print_function
 from csv import DictReader
-from random import randint
+from random import randint, choice
 from sys import argv, stdout
 from time import sleep
 
+from colored import fg, bg, attr
+
+ATTRS = [1, 2, 4, 5, 7]
+
 with open(argv[1], 'r') as csvfile:
-    TWEETS = [x['text'] for x in DictReader(csvfile)]
+    TWEETS = [x['text'] for x in DictReader(csvfile) if '@' not in x['text'] and '://' not in x['text']]
 
 while True:
-    color = bg(randint(0,255)) + fg(randint(0,255))
-    print(color + TWEETS[randint(0,len(TWEETS))] + attr('reset'), end="")
+    COLOR = bg(randint(0, 255)) + fg(randint(0, 255)) + attr(choice(ATTRS))
+    print(COLOR + TWEETS[randint(0, len(TWEETS)-1)].replace('\n', ' ') + attr('reset'), end="")
     stdout.flush()
-    sleep(0.1)
+    sleep(randint(100, 1200)*0.0001)
