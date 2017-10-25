@@ -1,0 +1,4 @@
+#!/bin/sh
+# convert a pdf to text, for git diff
+# from https://tante.cc/2009/03/24/versioning-pdf-files-with-git/
+pdftotext $1 -
