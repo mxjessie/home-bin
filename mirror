@@ -4,9 +4,10 @@
 # TODO: xrandr ??
 CAM_WIDTH='640'
 CAM_HEIGHT='480'
+CAM_DEVICE='/dev/video0'
 
 mirror_mplayer() {
-    mplayer -ao none -vf mirror -vf screenshot -vo gl -tv driver=v4l2:width=$CAM_WIDTH:height=$CAM_HEIGHT -fs tv://
+    mplayer -ao none -vf mirror -vf screenshot -vo gl -tv driver=v4l2:width=$CAM_WIDTH:height=$CAM_HEIGHT:device=$CAM_DEVICE -fs tv://
 }
 
 mirror_mpv() {
@@ -28,8 +29,8 @@ cmd_exists() {
 
 if [ -d '/Applications/Photo Booth.app' ]; then
     mirror_osx
-elif cmd_exists 'mpv'; then
-    mirror_mpv
+#elif cmd_exists 'mpv'; then
+#    mirror_mpv
 elif cmd_exists 'mplayer'; then
     mirror_mplayer
 else
