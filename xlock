@@ -1,3 +1,9 @@
-#!/bin/bash
-# todo: locker detection
-xscreensaver-command -lock
+#!/usr/bin/env bash
+revert() {
+    xset dpms 0 0 0
+}
+trap revert HUP INT TERM
+xset dpms 5 5 5
+i3lock -nefc 111111
+revert
+
