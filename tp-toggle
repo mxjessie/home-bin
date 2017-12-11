@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# toggle the trackpad
+
+set -e
+
+XIN_DEVICE=11
+XIN_PROP="Device Enabled"
+
+case $(xinput list-props "$XIN_DEVICE" | grep "$XIN_PROP" | awk '{ print $4 }') in
+    "0")
+        echo "enabling trackpad"
+        xinput set-prop "$XIN_DEVICE" "$XIN_PROP" 1
+        ;;
+    "1")
+        echo "disabling trackpad"
+        xinput set-prop "$XIN_DEVICE" "$XIN_PROP" 0
+        ;;
+    *)
+        echo "i don't understand the thing. wyd"
+        exit 1
+esac
