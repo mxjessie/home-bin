@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# set a ding dang wall paper !
+
+# xphoon..
+# xsetroot -solid '#8700ff'
+feh --bg-tile $HOME/Sync/bigpurplearch.png
+
