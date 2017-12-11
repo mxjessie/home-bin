@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# polo!
+
+set -e
+
+NMAP_OPTS="-sP -T4"
+
+for i in $(ip route | grep / | awk '{ print $1 }'); do
+    echo "hi $i, who's here?"
+    nmap $NMAP_OPTS $i
+done
