@@ -15,6 +15,6 @@ mkdir -p "$SAVEPATH"
 # @2250000 = maximum of 2.2 megapixels / 1500^2
 convert -resize 2250000@ "$SRCFILE" "$NEWNAME"
 
-exiftool -all=  -overwrite_original_in_place "$NEWNAME"
+exiftool -all=  -tagsfromfile @ -Orientation -overwrite_original_in_place "$NEWNAME"
 
 file "$NEWNAME"
