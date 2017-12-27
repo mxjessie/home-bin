@@ -16,10 +16,11 @@ EXCL_FILES = [
 EXCL_PREFIX = ('environment-')
 EXCL_SUFFIX = ('.pub')
 
-KEYFILES = [SSH_CONFIG_DIR + y for y in
-            [x for x in os.listdir(SSH_CONFIG_DIR) if x not in EXCL_FILES]
-            if not os.path.basename(y).endswith(EXCL_SUFFIX)
-            and not os.path.basename(y).startswith(EXCL_PREFIX)]
+KEYFILES = sorted(
+    [SSH_CONFIG_DIR + y for y in
+     [x for x in os.listdir(SSH_CONFIG_DIR) if x not in EXCL_FILES]
+     if not os.path.basename(y).endswith(EXCL_SUFFIX)
+     and not os.path.basename(y).startswith(EXCL_PREFIX)])
 
 print("Loading: {0}".format(', '.join(KEYFILES)))
 
