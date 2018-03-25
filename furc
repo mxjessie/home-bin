@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# MRRRWELCOME
+
+set -ev
+
+cd "$HOME/.wine/drive_c/Program Files (x86)/Furcadia"
+wine Furcadia.exe
