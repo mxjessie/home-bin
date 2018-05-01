@@ -3,5 +3,6 @@
 
 # xphoon..
 # xsetroot -solid '#8700ff'
-feh --bg-tile $HOME/Sync/bigpurplearch.png
+feh --bg-fill $HOME/Sync/Wallpapers/fusor-star-mode.jpg
+
 
