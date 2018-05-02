@@ -1,0 +1,5 @@
+#!/bin/zsh
+# needlessly golfed friend generator
+c=("${(@f)$(cat /usr/share/X11/rgb.txt|awk '{ print $4 }')}")
+f=(neko tora dog)
+for i in {1..50}; do oneko -position +$[RANDOM%200]+$[RANDOM%200] -time $[RANDOM*10+10000] -${f[$[RANDOM % ${#f[@]}+1]]} -fg ${c[$[RANDOM%${#c[@]}+1]]} -bg ${c[$[RANDOM%${#c[@]}+1]]}& done
