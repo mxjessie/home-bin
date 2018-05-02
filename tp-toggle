@@ -3,7 +3,9 @@
 
 set -e
 
-XIN_DEVICE=11
+XIN_DEVICE_NAME="Synaptics TouchPad"
+
+XIN_DEVICE=$(xinput | grep -i "$XIN_DEVICE_NAME" | grep -oP '(?<=id\=)[^\W]*')
 XIN_PROP="Device Enabled"
 
 case $(xinput list-props "$XIN_DEVICE" | grep "$XIN_PROP" | awk '{ print $4 }') in
