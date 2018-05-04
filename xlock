@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
-revert() {
+# xlock: lock the screen with i3lock
+
+dpms-revert() {
     xset dpms 0 0 0
 }
-trap revert HUP INT TERM
+trap dpms-revert HUP INT TERM
+
+dunst-revert() {
+    pkill -u "$USER" -USR2 dunst
+}
+trap dunst-revert HUP INT TERM
+
+pkill -u "$USER" -USR1 dunst # disable notifications
 xset dpms 5 5 5
 i3lock -nefc 111111
-revert
-
+dpms-revert
+dunst-revert
