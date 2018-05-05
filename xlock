@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # xlock: lock the screen with i3lock
 
+# enable blur-locking with 'touch ~/.blurlock'. needs ffmpreg
+# stolen from https://github.com/petvas/i3lock-blur/blob/master/lock.sh <3
+BLURLOCK=false
+LOCKICON="$HOME/Sync/Wallpapers/lockicon.png"
+BGIMG="$HOME/lockimage.png"
+
 dpms-revert() {
     xset dpms 0 0 0
 }
@@ -11,8 +17,21 @@ dunst-revert() {
 }
 trap dunst-revert HUP INT TERM
 
+if [ -f "$HOME/.blurlock" ]; then
+    BLURLOCK=true
+    RES=$(xrandr | grep 'current' | sed -E 's/.*current\s([0-9]+)\sx\s([0-9]+).*/\1x\2/')
+    ffmpeg -loglevel panic -f x11grab -video_size "$RES" -y -i "$DISPLAY" -i "$LOCKICON" -filter_complex "boxblur=6:3,overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2" -vframes 1 "$BGIMG"
+fi
+
 pkill -u "$USER" -USR1 dunst # disable notifications
 xset dpms 5 5 5
-i3lock -nefc 111111
+
+if $BLURLOCK; then
+    i3lock -nefi "$BGIMG"
+else
+    i3lock -nefc 111111
+fi
+
 dpms-revert
 dunst-revert
+rm "$BGIMG"
