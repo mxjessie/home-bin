@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+""" clone or update an entire organization's github repositories
+requires pygithub3, gitpython, yaml, hub-style credentials in $HOME/.config/hub
+"""
+
+from __future__ import print_function
+
+#import argparse # TODO add argument parsing
+import os
+import sys
+import yaml
+import git
+from github import Github
+
+ORG_NAME = sys.argv[1]
+# repos will be cloned/updated under CODE_ROOT/ORG_NAME/repo
+CODE_ROOT = '~/Code/'
+CUSTOM_SSH = 'work-github' # or a hostname
+VERBOSE = True
+
+def ssh_url(repo):
+    """ return the ssh url if a custom hostname is set """
+    if CUSTOM_SSH:
+        return '{0}:{1}/{2}'.format(CUSTOM_SSH, ORG.login, repo.name)
+    return repo.ssh_url
+
+
+def print_status(text):
+    """ print status emojums, realtime & without newline
+    ideally this would right-justify the emojables, but
+    i'm not sure of a clean way to do that & it's not a big deal
+    """
+    if VERBOSE:
+        print(text, end='')
+        sys.stdout.flush()
+
+
+def clone_or_pull(repo):
+    """ given a repository object, clone or pull it """
+    repo_fullname = ORG.name + '/' + repo.name
+    repo_path = os.path.expanduser(CODE_ROOT + repo_fullname)
+
+    #print(repo_fullname + ': ', end='')
+    print_status(repo_fullname + ': ')
+
+    if os.path.isdir(repo_path + '/.git'):
+        # try to pull an existing repo
+        print_status('🔄')
+        try:
+            git.Repo(repo_path).remotes.origin.pull()
+            print_status('✅')
+        except (git.GitCommandError, git.NoSuchPathError, git.InvalidGitRepositoryError) as exc:
+            # unstaged changes, folder missing, somehow, or not a git repo
+            print_status('❌',)
+            print(exc, file=sys.stderr)
+
+    else:
+        # clone a new repo
+        print_status('✨',)
+        try:
+            git.Repo.clone_from(ssh_url(repo), repo_path)
+            print_status('✅')
+        except git.GitCommandError as exc:
+            # somethin's goofy
+            print_status('❌',)
+            print(exc, file=sys.stderr)
+
+    if VERBOSE:
+        print('')
+
+
+def get_gh():
+    """ forage for credentials and return an authenticated GH instance
+    TODO: argparse, add options for unauthed mode, username/password"""
+    try:
+        creds = yaml.load(open(os.path.expanduser("~/.config/hub")).read())['github.com'][0]
+    except OSError as exc:
+        print(exc, file=sys.stderr)
+        sys.exit("Couldn't find hub credentials in ~/.config/hub..")
+
+    return Github(creds['oauth_token'])
+
+
+if __name__ == "__main__":
+    G = get_gh()
+    ORG = G.get_organization(ORG_NAME)
+    REPOS = [x for x in ORG.get_repos()]
+
+    if VERBOSE:
+        # print a header, with the repo size if appropriate permissions
+        try:
+            print("Cloning {1} repos ({2:.2f}MB) in {0}".format(
+                ORG_NAME, len(REPOS), ORG.disk_usage /1024.0))
+        except OSError: # TODO what error does this actually throw?
+            print("Cloning {1} repos in {0}".format(
+                ORG_NAME, len(REPOS)))
+
+    for i in REPOS:
+        clone_or_pull(i)
