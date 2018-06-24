@@ -51,18 +51,18 @@ def clone_or_pull(repo):
             print_status('✅')
         except (git.GitCommandError, git.NoSuchPathError, git.InvalidGitRepositoryError) as exc:
             # unstaged changes, folder missing, somehow, or not a git repo
-            print_status('❌',)
+            print_status('❌')
             print(exc, file=sys.stderr)
 
     else:
         # clone a new repo
-        print_status('✨',)
+        print_status('✨')
         try:
             git.Repo.clone_from(ssh_url(repo), repo_path)
             print_status('✅')
         except git.GitCommandError as exc:
             # somethin's goofy
-            print_status('❌',)
+            print_status('❌')
             print(exc, file=sys.stderr)
 
     if VERBOSE:
