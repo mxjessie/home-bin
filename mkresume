@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+# start everything needed to work on resume
+# zsh needed bc this hooks into my shell specifics
+
+RESUME_PATH="$HOME/Code/resume"
+cd "$RESUME_PATH"
+RESUME_NAME="$RESUME_PATH/$(basename $(ls -1 | grep 'resume.*\.tex') .tex)"
+
+# load lazy-intialized rbenv. this is specific to my env
+eval "$(command rbenv init -)"
+
+# import a saved i3 workspace layout & spawn in apps to fill
+i3-msg "append_layout $RESUME_PATH/resume-i3-layout.json"; sleep 1
+alacritty -t "resume-editor" --working-directory "$RESUME_PATH" -e $EDITOR "$RESUME_NAME.tex" &
+alacritty -t "resume-reload" --working-directory "$RESUME_PATH" -e $SHELL -c 'bundle exec guard' &
+mupdf "$RESUME_NAME.pdf" &
