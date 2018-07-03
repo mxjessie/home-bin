@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # polo!
+# TODO: 'ip' does not exist on macs, probably other unixes
 
 set -e
 
 NMAP_OPTS="-sP -T4"
 
-for i in $(ip route | grep / | awk '{ print $1 }'); do
+for i in $(ip route | grep / | grep -v 'docker\|virbr' | awk '{ print $1 }'); do
     echo "hi $i, who's here?"
-    nmap $NMAP_OPTS $i
+    nmap $NMAP_OPTS "$i"
 done
