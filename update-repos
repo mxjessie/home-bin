@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# do a git pull on every repo in $GIT_REPOS. this is set externally
+
+pushd () {
+    command pushd "$@" > /dev/null
+}
+
+popd () {
+    command popd "$@" > /dev/null
+}
+
+if [ ! -z "$GIT_REPOS" ]; then
+    for rpath in $GIT_REPOS; do
+        if [ -d "$rpath" ]; then
+            echo -n "$rpath: "
+            pushd "$rpath" || continue
+            git pull
+            popd
+        else
+            echo "$rpath specified but does not exist"
+        fi
+    done
+else
+    echo 'Please set $GIT_REPOS to a space-delimited set of paths'
+fi
