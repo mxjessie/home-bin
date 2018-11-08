@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 # polo!
-# TODO: 'ip' does not exist on macs, probably other unixes
+# only does v4. figure out how to ping-sweep /48 on your own terms
 
 set -e
 
 NMAP_OPTS="-sP -T4"
 
-for i in $(ip route | grep / | grep -v 'docker\|virbr' | awk '{ print $1 }'); do
+if [[ $(uname) == "Darwin" ]]; then
+    # TODO TODO: htf do i get the route prefix length without bash bit-swizzling
+    ## TODO: only does the default gw for now
+    #NWLIST=$(netstat -nrf inet | grep default | awk '{print $2}' | grep '\.')
+    echo "macs suck sry do it yourself"
+    exit 1
+else
+    NWLIST=$(ip route | grep / | grep -v 'docker\|virbr'| awk '{ print $1 }')
+fi
+
+for i in $NWLIST; do
     echo "hi $i, who's here?"
     nmap $NMAP_OPTS "$i"
 done
