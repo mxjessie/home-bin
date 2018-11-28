@@ -16,8 +16,6 @@ if [ ! -z "$GIT_REPOS" ]; then
             pushdq "$rpath" || continue
             git pull
             popdq
-        else
-            echo "$rpath specified but does not exist"
         fi
     done
 else
