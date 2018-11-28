@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # do a git pull on every repo in $GIT_REPOS. this is set externally
 
-pushd () {
+pushdq() {
     command pushd "$@" > /dev/null
 }
 
-popd () {
+popdq() {
     command popd "$@" > /dev/null
 }
 
 if [ ! -z "$GIT_REPOS" ]; then
     for rpath in $GIT_REPOS; do
-        if [ -d "$rpath" ]; then
+        if [[ -d "$rpath/.git" ]]; then
             echo -n "$rpath: "
-            pushd "$rpath" || continue
+            pushdq "$rpath" || continue
             git pull
-            popd
+            popdq
         else
             echo "$rpath specified but does not exist"
         fi
