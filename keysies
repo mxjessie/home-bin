@@ -11,7 +11,7 @@ HOME = os.path.expanduser('~') + "/"
 HOSTNAME = platform.node().split('.')[0]
 SSH_CONFIG_DIR = HOME + ".ssh/"
 EXCL_FILES = [
-    'config', 'authorized_keys', 'known_hosts',
+    'config', 'config.d', 'authorized_keys', 'known_hosts',
     ]
 EXCL_PREFIX = ('environment-')
 EXCL_SUFFIX = ('.pub')
