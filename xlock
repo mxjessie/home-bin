@@ -34,4 +34,5 @@ fi
 
 dpms-revert
 dunst-revert
+xdotool mousemove 0 0
 rm "$BGIMG"
