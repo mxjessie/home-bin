@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+I3_CFG_BASE="$HOME/.config/i3"
+I3_CFG_FILE="$I3_CFG_BASE/config"
+I3_CFG_DIR="$I3_CFG_BASE/config.d"
+
+cat $I3_CFG_DIR/* > "$I3_CFG_FILE"
+
+i3-msg reload
