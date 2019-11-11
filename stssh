@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+_SYNCTHING_API_KEY=$(cat "$HOME/.syncthing-api-key")
+
+DEV_NAME="$1"
+shift
+
+DEV_ID=$(curl --silent -X GET -H "X-Api-Key: $_SYNCTHING_API_KEY" http://localhost:8384/rest/system/config | jq -r ".devices[] | select(.name | contains(\"$DEV_NAME\")) | .deviceID")
+#echo $DEV_ID
+DEV_IP=$(curl --silent -X GET -H "X-Api-Key: $_SYNCTHING_API_KEY" http://localhost:8384/rest/system/connections | jq -r ."connections[\"$DEV_ID\"].address" | awk -F: '{ print $1 }')
+#echo $DEV_IP
+
+
+if ! [ -z "$DEV_IP" ]; then
+    ssh "$DEV_IP" "$@"
+else
+    echo "Couldn't find IP for $DEV_NAME, is it connected?"
+fi
