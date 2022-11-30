@@ -1,0 +1,3 @@
+#!/bin/sh
+# launch grig with local rigctld control
+/usr/bin/grig -m2 -r localhost:4532 -d1

@@ -1,0 +1,32 @@
+#!/bin/bash
+# switch rigctl radio bands on a predefined interval with a ~precise start time
+# used for FT8 SDR band-hopping to watch for openings & make pretty waterfalls
+# TODO: update with the version of this that skips dead bands
+
+# 80 40 30 20 17 15 12 10
+BANDS="3573000 7074000 10136000 14074000 18100000 21074000 24915000 28074000"
+#BANDS="7074000 10136000 14074000 18100000 21074000 24915000 28074000"
+DWELL=45
+RIGCTL_OPTS="-m2 -r 127.0.0.1:4532"
+
+function datestamper {
+    date +%Y%m%d-%H%M%S.%N
+}
+
+function sequence {
+    for i in $BANDS; do
+        rigctl "$RIGCTL_OPTS" F "$i"
+        echo "tuned to $i at $(datestamper)"
+        sleep "$DWELL"
+    done
+}
+
+while :; do
+    if date +%S | grep -qE '00|15|30|45'; then
+        echo "lets go baby love da mets"
+        datestamper
+        sequence
+    fi
+    sleep 0.1
+done
+

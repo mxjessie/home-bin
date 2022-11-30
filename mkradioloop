@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# set up jackd loopback devices for pulseaudio to redirect radio mischief
+# TODO: test if these devices already exist, bail out if so
+# TODO: make the connections if using big audio interface
+DEVNAME="pulse_radio"
+pactl load-module module-jack-source client_name=${DEVNAME}_source connect=no channels=1
+pactl load-module module-jack-sink client_name=${DEVNAME}_sink connect=no channels=1

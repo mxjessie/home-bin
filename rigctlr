@@ -1,0 +1,19 @@
+#!/bin/bash
+# launch rigctld-wsjtx for my icom 735
+# TODO: verify `stty sane` doesn't accidentally activate the radio TX
+
+#PTT_DEV="/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AB0JNHIU-if00-port0"
+PTT_DEV="/dev/ttyS0"
+CTRL_DEV="/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0"
+
+RIGCTL_BIN="$HOME/wsjtx/output/bin/rigctld-wsjtx"
+
+
+for i in $CTRL_DEV $PTT_DEV; do
+    echo resetting $i
+    stty -F "$i" sane
+done
+
+$RIGCTL_BIN -T "127.0.0.1" -t 4532 -m 3019 \
+  -r $CTRL_DEV -s 9600 -c 4 --set-conf=data_bits=8,stop_bits=1,rts_state=ON,dtr_state=OFF,serial_parity=None,serial_handshake=None \
+  -p $PTT_DEV -P DTR
