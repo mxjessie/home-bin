@@ -1,5 +1,7 @@
 #!/bin/zsh
 # needlessly golfed friend generator
+set -ev
 c=("${(@f)$(cat /usr/share/X11/rgb.txt|awk '{ print $4 }')}")
-f=(neko tora dog)
-for i in {1..50}; do oneko -position +$[RANDOM%200]+$[RANDOM%200] -time $[RANDOM*10+10000] -${f[$[RANDOM % ${#f[@]}+1]]} -fg ${c[$[RANDOM%${#c[@]}+1]]} -bg ${c[$[RANDOM%${#c[@]}+1]]}& done
+f=(neko tora dog) # add sakura and tomoyo for fanime scheduling conflict
+for i in {1..20}; do pos=+$[$RANDOM%200-100]+$[$RANDOM%200-100]; time=$[$RANDOM*10+10000]; oneko -position $pos -time $time -${f[$[RANDOM % ${#f[@]}+1]]} -fg ${c[$[RANDOM%${#c[@]}+1]]} -bg ${c[$[RANDOM%${#c[@]}+1]]} & sleep 0.1; done
+
