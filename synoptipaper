@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+# synoptipaper: make a cute wallpaper collage of solar conditions & HF prop
+# uses NOAA's solar synoptic maps, the N0NBH propagation widget, and
+# kc2g's MUF and foF2 propagation maps
+# todo:
+# * convert this whole thing to a better language, this is too big for bash
+# * handle source unavailability more nicely
+# * fetch asynchronously so stuff can be gotten on different timers
+
+set -e
+
+# updating once an hour is fine, be nice to our providers
+INTERVAL=3600
+
+DISPRES=$(xrandr -q | grep '*' | head -n1 | awk '{ print $1 }')
+# gross . but it works
+HALFRES=$(($(echo "$DISPRES" | sed 's/x.*//')/2))x$(($(echo "$DISPRES" | sed 's/.*x//')/2))
+SPTMPDIR=$(mktemp -d -t 'sptmpdir.XXXXXXX' 2>/dev/null || echo "/tmp")
+WGETCMD="wget -Nq"
+
+while :; do
+  UPDATETIME=$(echo -n 'Updated at '; date "+%Y%m%d %H%M%S")
+  echo "$UPDATETIME"
+  cd "$SPTMPDIR" || exit
+
+  # grab sources
+  $WGETCMD "https://services.swpc.noaa.gov/images/synoptic-map.jpg" -O synoptic-map.jpg
+  $WGETCMD "https://www.hamqsl.com/solarvhf.php" -O solarvhf.gif
+  $WGETCMD "https://prop.kc2g.com/renders/current/mufd-normal-now.svg" -O mufd-normal.svg
+  $WGETCMD "https://prop.kc2g.com/renders/current/fof2-normal-now.svg" -O fof2-normal.svg
+
+  # invert the synoptic map but keep the red channel red
+  convert -negate -modulate 100,100,0 -resize "$DISPRES"\> synoptic-map.jpg synoptic-invert.jpg
+  # convert the MUF and foF2 maps to png and invert
+  for i in mufd-normal fof2-normal; do
+      # imagemagick sucks at svg -> png conversion
+      convert -density 100 -negate -resize "$HALFRES" "$i.svg" "$i.png"
+  done
+
+  # combine it all
+  convert -background black -gravity center \
+      mufd-normal.png fof2-normal.png -append synoptic-invert.jpg solarvhf.gif +append solarpaper.png
+  mogrify -gravity northwest -stroke none -fill white -pointsize 16 \
+    -annotate 0 "$UPDATETIME" solarpaper.png
+  feh --bg-max solarpaper.png --image-bg black
+
+  # zzz
+  sleep "$INTERVAL"
+done
