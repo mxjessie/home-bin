@@ -1,32 +1,93 @@
 #!/bin/bash
 # switch rigctl radio bands on a predefined interval with a ~precise start time
 # used for FT8 SDR band-hopping to watch for openings & make pretty waterfalls
-# TODO: update with the version of this that skips dead bands
 
-# 80 40 30 20 17 15 12 10
-BANDS="3573000 7074000 10136000 14074000 18100000 21074000 24915000 28074000"
-#BANDS="7074000 10136000 14074000 18100000 21074000 24915000 28074000"
-DWELL=45
+set -e
+
+# 160 80 40 30 20 17 15 12 10       everybody now
+BANDS_ALL="1840000 3573000 7074000 10136000 14074000 18100000 21074000 24915000 28074000"
+# 160 80 40 30 20                   nighttime
+BANDS_NIGHT="1840000 3573000 7074000 10136000 14074000"
+# 30 20 17 15 12 10                 daytime
+BANDS_DAY="10136000 14074000 18100000 21074000 24915000 28074000"
+
+# dwell is base interval of seconds to sleep on each band, 15 for FT8
+# dwellcount is number of intervals total to sit on an active band
+# dwelloffset is subtracted from dwell to keep decoding & rig control delays
+# from causing frequency switch intervals to drift off later in sequence
+# very hacky, but about -100ms seemed to work for my 9600 baud IC-735
+# on a rpi4 running WSJT-X. JTDX double-pass decodes are less consistent
+# but my i7 seems to need significantly less delay (~10ms?)
+# determined by tedious experimentation. mind the nanoseconds & 'nothing heard's
+DWELL=15
+DWELLCOUNT=5
+DWELLOFFSET=0.02
+
 RIGCTL_OPTS="-m2 -r 127.0.0.1:4532"
+
+# TODO: this will break while running over month boundaries
+#ALLTXT="$HOME/.local/share/WSJT-X/ALL.TXT"
+ALLTXT="$HOME/.local/share/JTDX/$(date +%Y%m)_ALL.TXT"
 
 function datestamper {
     date +%Y%m%d-%H%M%S.%N
 }
 
+function logstamp {
+    date -u +%y%m%d_%H%M%S
+}
+
+function nsstamp {
+    date +%S.%N
+}
+
 function sequence {
     for i in $BANDS; do
         rigctl "$RIGCTL_OPTS" F "$i"
-        echo "tuned to $i at $(datestamper)"
-        sleep "$DWELL"
+        echo -n "tuned to $((i/1000))kc at $(datestamper).. "
+        deadband=0
+        for j in $(seq 1 $DWELLCOUNT); do
+            ts=$(logstamp)
+            echo "$ts vs $(datestamper)"
+            sleep "$(echo "$DWELL-$DWELLOFFSET" | bc)"
+            decodecount=$(tail -n50 "$ALLTXT" | grep -v 'FT8 JTDX' | grep -c "$ts")
+            if [ "$decodecount" -eq "0" ]; then
+                if [ "$deadband" -eq "1" ]; then
+                    echo -n "nothing heard"
+                    break
+                else
+                    echo -n "0,"
+                    deadband=1
+                fi
+            else
+                deadband=0
+                echo -n "$decodecount,"
+            fi
+        done
+        echo "."
     done
 }
 
 while :; do
-    if date +%S | grep -qE '00|15|30|45'; then
-        echo "lets go baby love da mets"
-        datestamper
+    # linger another cycle if need be to land on a dwell interval
+    if date +%S.%N | grep -qE '00\.3|15\.3|30\.3|45\.3'; then
+        case $(date +%H) in
+            # TODO: make these adjust with local sunrise/sunset times
+            19|20|21|22|23|00|01|02|03|04|05)
+                echo "-- nighttime --"
+                BANDS=$BANDS_NIGHT ;;
+            06|07|08)
+                echo "-- sunrise greyline --"
+                BANDS=$BANDS_ALL ;;
+            09|10|11|12|13|14|15)
+                echo "-- daytime --"
+                BANDS=$BANDS_DAY ;;
+            16|17|18)
+                echo "-- sunset greyline --"
+                BANDS=$BANDS_ALL ;;
+        esac
         sequence
     fi
-    sleep 0.1
+    sleep 0.05
 done
 
